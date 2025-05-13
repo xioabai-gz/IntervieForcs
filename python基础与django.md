@@ -523,14 +523,38 @@ HAVING num >= 2;
 
 而 MVCC 利用了多版本的思想，**写操作更新最新的版本快照**，**而读操作去读旧版本快照**，**没有互斥关系**，这一点和 CopyOnWrite 类似。
 
-### 版本号
+#### 版本号
 
 1. **系统版本号：**系统版本号SYS_ID:是一个递增的数字，没开始一个新事务，就自动递增
 2. **事务版本号：**TRX_ID:事务开始时的系统版本号
 
 
 
+#### Undo日志：
 
+MVCC多版本指的是多个版本的快照，快照存储在Undo日志中，该日志通过回滚指针ROLL_PTR把一个数据行的所有快照链接起来
+
+假如在MYSql中创建了一个表t，包含主键id和一个字段x。我们先插入一个数据行然后对该数据行执行两次更新操作
+
+```sql
+INSERT INTO t(id, x) VALUES(1, "a");
+UPDATE t SET x="b" WHERE id=1;
+UPDATE t SET x="c" WHERE id=1;
+```
+
+因为没有使用 `START TRANSACTION` 将上面的操作当成一个事务来执行，根据 MySQL 的 AUTOCOMMIT 机制，每个操作都会被当成一个事务来执行，所以上面的操作总共涉及到三个事务。快照中除了记录事务版本号 TRX_ID 和操作之外，还记录了一个 bit 的 DEL 字段，用于标记是否被删除。
+
+![img](https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/image-20191208164808217.png)
+
+INSERT、UPDATE、DELETE 操作会创建一个日志，并将事务版本号 TRX_ID 写入。DELETE 可以看成是一个特殊的 UPDATE，还会额外将 DEL 字段设置为 1。
+
+
+
+#### ReadView：
+
+MVCC维护了一个ReadView结构，主要包含了当前系统未递交的事务列表
+
+TRX_IDs
 
 
 
