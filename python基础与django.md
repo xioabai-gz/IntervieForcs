@@ -538,6 +538,307 @@ HAVING num >= 2;
 
 
 
+# Python面试
+
+## python中有哪些可变类型与不可变类型
+
+可变类型：列表 字典
+
+不可变类型：整形 字符串  元组
+
+
+
+## 迭代器与生成器
+
+
+
+### 什么是迭代器为什么要使用它
+
+可以被next（）函数调用并且不断返回下一个值得对象称为迭代器：
+
+**迭代器**是一个实现了**迭代协议**的对象，即同时实现了：
+
+- `__iter__()` 方法，返回迭代器对象本身
+- `__next__()` 方法，每次调用返回下一个元素，直到抛出 `StopIteration` 异常
+
+迭代是访问集合元素的一种方式》
+
+迭代器保存的是获取数据得方式而不是结果，所以想用得时候就可以生成，**节省大量内存空间**，他是一个可以记住遍历得位置的对象，迭代器从集合的第一个元素开始访问，知道所有的元素被访问完结束。迭代器只能往前不会后退。
+
+**3. 特点**
+
+- 每次迭代调用 `__next__()`
+- 内存效率高（按需加载）
+- 一次性消费：迭代器只能遍历一次
+
+
+
+
+
+### 什么是生成器为何要使用它
+
+生成器是**简化版的迭代器，**是python提供的一种写迭代器的快捷方式，使用yield来返回每一个值
+
+**形式：**
+
+1. 生成器函数（带有yield的函数）
+2. 生成器表达式（类似列表推导式）
+
+
+
+### 特点
+
+- 语法简单，易于实现复杂逻辑
+- 自动实现了 `__iter__()` 和 `__next__()`
+- 同样支持 `for` 遍历或手动使用 `next()`
+- **延迟执行**（lazy evaluation），节省内存
+
+生成器定义在Python中,**一边循环一边计算**的机制，使用了 yield 的函数被称为生成器（generator）。
+跟普通函数不同的是，**生成器是一个返回迭代器的函数**，**只能用于迭代操作**，更简单点理解生成器就是一个特殊的迭代器。
+在调用生成器运行的过程中，每次遇到 yield 时函数会暂停并保存当前所有的运行信息，
+返回 yield 的值, 并在下一次执行 next() 方法时从当前位置继续运行。
+调用一个生成器函数，返回的是一个迭代器对象。
+
+| 特性       | 迭代器                                  | 生成器                      |
+| ---------- | --------------------------------------- | --------------------------- |
+| 定义方式   | 自定义类并实现 `__iter__` 和 `__next__` | 使用 `yield` 编写生成器函数 |
+| 写法复杂度 | 相对繁琐                                | 简洁、直观                  |
+| 状态维护   | 需手动维护                              | 自动保存状态                |
+| 使用内存   | 按需加载，内存效率高                    | 同样按需加载，效率高        |
+| 应用场景   | 自定义复杂遍历逻辑                      | 简单、快速实现惰性数据处理  |
+
+### 应用场景：
+
+1. 读取大文件：避免一次性加载进内存
+2. 流式数据处理：例如网络流、日志流
+3. 复杂数据管道：如数据清洗、过滤、转换等步骤串联
+
+### 举例子：
+
+在数据管道中定义多个步骤处理
+
+```python
+# 1. 读取文件的生成器
+def read_lines(filepath):
+    with open(filepath, 'r') as file:
+        for line in file:
+            yield line.strip()
+
+# 2. 去除空行
+def remove_empty(lines):
+    for line in lines:
+        if line:  # 非空字符串
+            yield line
+
+# 3. 转换成大写
+def to_upper(lines):
+    for line in lines:
+        yield line.upper()
+
+# 4. 过滤包含关键字的行
+def filter_keyword(lines, keyword):
+    for line in lines:
+        if keyword in line:
+            yield line
+
+# 构建数据处理管道
+def data_pipeline(filepath, keyword):
+    lines = read_lines(filepath)
+    lines = remove_empty(lines)
+    lines = to_upper(lines)
+    lines = filter_keyword(lines, keyword)
+    return lines
+
+# 运行处理流程
+for line in data_pipeline('log.txt', 'ERROR'):
+    print(line)
+
+```
+
+
+
+**生成器表达式：**
+
+语法：expression for item in iterable if condition
+
+```python
+expression for item in iterable if condition
+```
+
+举例子：平方数生成器
+
+```python
+squares = (x * x for x in range(5))
+print(next(squares))  #输出0
+print(next(squares))  #输出1
+print(list(squares))  #输出剩下的[4 9 16]
+```
+
+注意：生成器只能遍历一次，用next取之后 再list（）只会剩余未取的部分
+
+实例二：从字符串中提取大写字母
+
+```python
+text = "Hello World I Am Gpt"
+caps = (ch for ch in text if ch.isupper())
+print(''.join(caps))  #输出HWIAG
+```
+
+这里为何不能直接打印caps呢，因为生成器不能直接打印，其本身是一个迭代器对象，本身并不存储数据，只有你取它的元素才会执行计算逻辑
+
+**触发生成器执行的方法有**：
+
+1. 用for循环取出每个值：
+2. 用join（）拼接成字符串：
+3. 把他抓换成列表或其他可打印的类型：
+
+
+
+生成器表达式和列表推导式的区别：
+
+| 特点     | 列表推导式 `[]`              | 生成器表达式 `()`          |
+| -------- | ---------------------------- | -------------------------- |
+| 返回类型 | 列表（一次性计算所有结果）   | 生成器（懒加载，按需生成） |
+| 内存占用 | 高（所有元素同时存在内存中） | 低（一次只生成一个元素）   |
+| 使用场景 | 小数据量或需要多次访问       | 大数据量、一次性遍历或处理 |
+
+
+
+## 装饰器：
+
+接受一个函数作为参数，返回一个增强后的函数
+
+- 装饰器本质是一个函数，这个函数主要作用是包装另外一个函数或者类包装的目的是不改变原函数名字的情况下改变被包装对象的行为
+- 接受一个函数，内部对其包装，然后返回一个新函数，这样子动态增强函数的功能
+- 通过高阶函数传递函数参数，新参数添加旧函数的需求，然后执行旧函数
+
+django的middkeware中间件就是高级的装饰器用法
+
+**装饰器目的：**
+
+- 代码复用：多个函数可以共享一套额外功能，比如打印日志认证等
+- 解耦逻辑：把额外逻辑从业务逻辑中分离开来
+- 保持简洁：原函数保持纯净，增强逻辑用装饰器集中管理
+- 动态增强：装饰器可以灵活插拔，实现函数行为动态修改
+
+
+
+首先理解：函数在python中是一等对象，可以被当作函数参数也可以被用来返回
+
+例子1：函数作为参数
+
+```python
+def square(x):
+    return x*x
+def print_running(f,x):
+    print(f'{f.__name__} is runing ' )
+    return f(x)
+result = print_running(square,2)
+print(result)
+```
+
+例子2：装饰器
+
+```python
+import time
+def squar(x):
+    return x*x
+#定义一个装饰器
+def decorter(func):
+	def wrapper(*args,**kwargs):
+        start_time = time.time()   #在装饰器中加入新功能
+		result = func()     #实现原来函数的功能
+        end_time = time.time()
+        print(f'{func__name__} exection time:{end_time-start_time} seconds')       #测量函数运行的时间
+        return result
+	return wrapper
+```
+
+使用装饰器
+
+方法1：直接使用装饰器，将原来函数作为参数传给装饰器
+
+```python
+decorated_square = decorator(square)  #用一个变量接受装饰后的函数
+decorated_squuare(10)       #这样就会使用装饰后的函数
+```
+
+方法2：因为装饰后的函数可以代替原来的函数，直接用原来的变量名字
+
+```python
+square = decortor(square)
+square(10)      #直接代替了原来的函数
+```
+
+方法3：给函数带个帽子  和方法二是等价的  这样就代替了原来的函数了
+
+```python
+@decorator
+def square(x):
+	return x*x
+square(10)
+```
+
+
+
+
+
+## 什么是线程安全：
+
+
+
+
+
+## is和==的区别
+
+”==“ 仅仅判断A和B的值是否相等
+
+is不仅是会判断A和B的值是否相等，还会判断A和B的id是否一致
+
+
+
+## new和init区别
+
+```python
+__new__() 和 __init()__区别
+```
+
+前者作用于后者之前，前者可以决定是否调用后者，可以决定调用哪个类的init方法
+
+
+
+## range和xrange的区别
+
+xrange在python3中被剔除   range本身就是惰性生成器
+
+
+
+## yield和return的相同点和区别
+
+- 相同点：功能都是返回程序执行结果
+- 区别：yield返回执行结果并不中断程序的运行，return在返回执行结果的同时中断程序的运行
+
+## 列举5个python常用标准库并说明其作用
+
+- os：提供不少于操作系统相关联的函数
+- sys：通常用于命令行参数
+- datetime：日期时间
+- re：正则匹配
+- math：数学运算
+
+
+
+列表和元组的区别：
+
+列表是动态数组，它们可变且可以重设长度（改变其内部元素个数）
+
+元组是静态数组，他们不可变
+
+二者设计哲学上有不同：
+
+列表可以被用于保存多个互相独立对象的数据集合
+
+元组用于描述一个不会改的事务的多个属性
 
 
 
@@ -552,3 +853,67 @@ HAVING num >= 2;
 
 
 
+
+
+
+
+
+# Django开发：
+
+MTV架构
+
+django的响应模式如下：
+
+![image-20250513164905982](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250513164905982.png)
+
+
+
+有人来请求通过中间后经过url进行路由分发，由相应的视图函数来找到对用的模型和模板来渲染HTML界面，然后回馈给查看的人
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 简历项目面试
+
+
+
+
+
+## 爬虫项目：
+
+重构后的代码架构
+
+![image-20250513170509225](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250513170509225.png)
+
+
+
+加入flask后的项目结构图形
+
+![image-20250513170948529](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250513170948529.png)
