@@ -884,15 +884,77 @@ xrange在python3中被剔除   range本身就是惰性生成器
 
 # Django开发：
 
+### 学习
+
 MTV架构
 
 django的响应模式如下：
 
 ![image-20250513164905982](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250513164905982.png)
 
-
-
 有人来请求通过中间后经过url进行路由分发，由相应的视图函数来找到对用的模型和模板来渲染HTML界面，然后回馈给查看的人
+
+
+
+## 会话控制
+
+Session存储在服，务器端口，访问网站时候所有HTTP请求都经过中间件处理，中间件SessionMiddleware会判断当前请求的用户身份是否存在，并根据判断结果执行相应的程序处理
+
+
+
+## 缓存机制
+
+djagno提供了五种缓存机制
+
+
+
+●Memcached：一个高性能的分布式内存对象缓存系统，用于动态网站，以减轻数据库负载。通过在内存中缓存数据和对象来减少读取数据库的次数，从而提高网站的响应速度。使用Memcached需要安装Memcached系统服务器，Django通过python-memcached或pylibmc模块调用Memcached系统服务器，实现缓存读写操作，适合超大型网站使用。
+
+●数据库缓存：缓存信息存储在网站数据库的缓存表中，缓存表可以在项目的配置文件中配置，适合大中型网站使用。
+
+●文件系统缓存：缓存信息以文本文件格式保存，适合中小型网站使用。
+
+●本地内存缓存：Django默认的缓存保存方式，将缓存存放
+
+有视图缓存 模板缓存 路由缓存
+
+## 面试题目：
+
+### 什么是WSGI：
+
+python定义的web服务器和web应用程序或者框架之间的一种简单通用的接口。让python写的应用程序可以和web服务器对接起来
+
+
+
+### uwsgi、uwsgi和wsgi的区别：
+
+![image-20250514153158830](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250514153158830.png)
+
+![image-20250514153212539](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250514153212539.png)
+
+
+
+### 什么是中间件：
+
+中间件是用来处理Django请求和相应的框架级别钩子，他是一个轻量低级别的插件系统，用于全局范围内改变Django的输入和输出，
+
+### 什么是信号量
+
+Django包含一个"信号调度程序"，它有助于在框架中的其他位置发生操作时通知分离的应用程序。简而言之，信号允许某些发送者通知一组接收器已经发生了某些动作。当许多代码可能对同一事件感兴趣时，它们特别有用.
+
+
+
+### Django的session的运行机制是什么：
+
+session存储可以利用中间件实现，需要在setting.py文件中注册APP设置中间件用于启动。设置存储模式（数据库/缓存/混合存储）和配置数据库缓存用于存储，生成django_session表单用于读写。
+
+
+
+
+
+
+
+
 
 
 
