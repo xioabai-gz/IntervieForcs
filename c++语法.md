@@ -1,0 +1,1126 @@
+# 1. c++基础语法
+
+#### 变量类型
+
+##### 字符型
+
+char
+
+
+
+####  函数
+
+##### 1.1 函数分文件编写
+
+是为了将大量的代码分成各个模块分给不同文件中
+
+![image-20250102102913687](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250102102913687.png)
+
+函数的声明是为了告诉编译器，系统有这个函数，但是现在还没有定义，声明可以有多个 但是函数的定义只能有一个
+
+做法就是将声明的函数一个在头文件中声明用到的函数   
+
+再在源文件中写函数的定义  但是要加上#include" "  双引号表明是自己定义的头文件
+
+####  指针
+
+```c++
+int *p //定义一个指针
+
+p = &a   //p 指向a的地址
+cout << p;   //输出内存地址
+cout << *p; //输出内存中的内容   解引用
+```
+
+空指针用来给指针进行初始化变量 但是不能进行访问
+
+int *p = NULL; 
+
+
+
+- 常量的指针
+  **const修饰指针，指针的指向可以改 但是指针的值不可以改**
+
+  ```c++
+  const int *p = &a;  
+  p = &b;//正确
+  //错误示范  
+  // *p = 100;  //就会报错 
+  ```
+
+- 指针的常量    
+
+- **const修饰常量，指针的指向不可以改 指针指向的值可以改**
+
+```c++
+int *const p2 = &a; //p2这个值就定下来了 ，即地址就定下来了 所以指针的指向肯定是没法改
+*p2 = 100;
+p2 = &b; //会报错
+```
+
+
+
+
+
+利用指针作为函数的参数 可以修改实参的值
+
+
+
+#### 结构体
+
+结构体数组，在这之中用  .  来访问结构体数组中的东西
+
+```c++
+//结构体定义
+struct student
+{
+	//成员列表
+	string name;  //姓名
+	int age;      //年龄
+	int score;    //分数
+}
+
+int main() {
+	
+	//结构体数组
+	struct student arr[3]=
+	{
+		{"张三",18,80 },
+		{"李四",19,60 },
+		{"王五",20,70 }
+	};
+```
+
+结构体指针
+
+通过 -> 可以访问结构体指针中的结构体属性
+
+```c++
+//结构体定义
+struct student
+{
+	//成员列表
+	string name;  //姓名
+	int age;      //年龄
+	int score;    //分数
+};
+
+
+int main() {
+	
+	struct student stu = { "张三",18,100, };
+	
+	struct student * p = &stu;
+	
+	p->score = 80; //指针通过 -> 操作符可以访问成员
+```
+
+结构体作为函数的形参
+
+```c++
+//学生结构体定义
+struct student
+{
+	//成员列表
+	string name;  //姓名
+	int age;      //年龄
+	int score;    //分数
+};
+
+//值传递
+void printStudent(student stu )
+{
+	stu.age = 28;
+	cout << "子函数中 姓名：" << stu.name << " 年龄： " << stu.age  << " 分数：" << stu.score << endl;
+}
+
+//地址传递
+void printStudent2(student *stu)
+{
+	stu->age = 28;
+	cout << "子函数中 姓名：" << stu->name << " 年龄： " << stu->age  << " 分数：" << stu->score << endl;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 2.面向对象编程基础
+
+## 内存分区
+
+C++程序在执行时，将内存大方向划分为**4个区域**
+
+- 代码区：存放函数体的二进制代码，由操作系统进行管理的
+- 全局区：存放全局变量和静态变量以及常量
+- 栈区：由编译器自动分配释放, 存放函数的参数值,局部变量等
+- 堆区：由程序员分配和释放,若程序员不释放,程序结束时由操作系统回收  由new开辟，由delete释放
+
+```c++
+int* func()
+{
+	int* a = new int(10);  //new 关键字返回的是一个地址  所以要用指针去接受
+	return a;
+}
+int main() {
+
+	int *p = func();
+
+	cout << *p << endl;
+	cout << *p << endl;
+
+	//利用delete释放堆区数据
+	delete p;
+
+	//cout << *p << endl; //报错，释放的空间不可访问
+
+	system("pause");
+
+	return 0;
+}
+```
+
+
+
+**内存四区意义：**
+
+不同区域存放的数据，赋予不同的生命周期, 给我们更大的灵活编程
+
+
+
+
+
+#### 引用
+
+引用的本质在c++内部实现是一个**指针的常量.**
+
+
+
+
+
+## 类和对象
+
+**struct和class区别：**唯一区别在于类默认为私有权限  结构体默认为公共权限
+
+**成员属性设置为私有优点**
+
+
+
+**优点1：**将所有成员属性设置为私有，可以自己控制读写权限
+
+**优点2：**对于写权限，我们可以检测数据的有效性
+
+
+
+
+
+### 对象的初始化和清理
+
+-  **初始化**：构造函数（主要作用在于创建对象时为对象的成员属性赋值，构造函数由编译器自动调用，无须手动调用。）
+
+​	**构造函数语法：**`类名(){}`
+
+1. 构造函数，没有返回值也不写void
+2. 函数名称与类名相同
+3. 构造函数可以有参数，因此可以发生重载
+4. 程序在调用对象时候会**自动调用构造**，无须手动调用,而且**只会调用一次**
+
+
+
+- **清理**：析构函数（主要作用在于对象**销毁前**系统自动调用，执行一些清理工作）
+
+**	析构函数语法：** `~类名(){}`
+
+1. 析构函数，没有返回值也不写void
+2. **函数名称与类名相同,在名称前加上符号  ~**
+3. 析构函数**不可以有参数，因此不可以发生重载**
+4. 程序在对象销毁前会自动调用析构，无须手动调用,而且只会调用一次
+
+
+
+
+
+**构造函数分类：**
+
+- 有参构造
+
+
+
+- 无参构造
+
+在调用是不需要加上括号
+
+Person p; //调用无参构造函数
+
+- 拷贝构造
+
+注意写法:  
+
+Person(const Person& p){ //用const保证p不会被修改
+
+​	age = p.age; 
+
+}
+
+```c++
+class Person {
+public:
+	//无参（默认）构造函数
+	Person() {
+		cout << "无参构造函数!" << endl;
+	}
+	//有参构造函数
+	Person(int a) {
+		age = a;
+		cout << "有参构造函数!" << endl;
+	}
+	//拷贝构造函数
+	Person(const Person& p) {   //const修饰形参 防止形参改变实参
+		age = p.age;
+		cout << "拷贝构造函数!" << endl;
+	}
+	//析构函数
+	~Person() {
+		cout << "析构函数!" << endl;
+	}
+public:
+	int age;
+};
+```
+
+
+
+
+
+### 深拷贝与浅拷贝
+
+浅拷贝：简单的赋值拷贝操作
+
+
+
+深拷贝：在堆区重新申请空间，进行拷贝操作
+
+```c++
+class Person {
+public:
+	//无参（默认）构造函数
+	Person() {
+		cout << "无参构造函数!" << endl;
+	}
+	//有参构造函数
+	Person(int age ,int height) {
+		
+		cout << "有参构造函数!" << endl;
+
+		m_age = age;
+		m_height = new int(height);   //因为new出来的数据会返回该类型数据所对应的指针，这里mheight就是一个指针
+		
+	}
+	//拷贝构造函数  
+	Person(const Person& p) {
+		cout << "拷贝构造函数!" << endl;
+		//如果不利用深拷贝在堆区创建新内存，会导致浅拷贝带来的重复释放堆区问题
+		m_age = p.m_age;
+		m_height = new int(*p.m_height);
+		
+	}
+
+	//析构函数
+	~Person() {
+		cout << "析构函数!" << endl;
+		if (m_height != NULL)
+		{
+			delete m_height;
+		}
+	}
+public:
+	int m_age;
+	int* m_height;
+};
+```
+
+
+
+
+
+**总结：如果属性有在堆区开辟的，一定要自己提供拷贝构造函数，防止浅拷贝带来的问题**
+
+c++中常用new 在堆区来开辟空间
+
+
+
+### 列表初始化
+
+
+
+```c++
+//初始化列表方式初始化
+	Person(int a, int b, int c) :m_A(a), m_B(b), m_C(c) {}
+```
+
+
+
+### 类对象作为类成员
+
+
+
+
+
+### 静态成员
+
+静态成员就是在成员变量和成员函数前加上关键字static，称为静态成员
+
+静态成员分为：
+
+
+
+*  静态成员变量
+   *  所有对象共享同一份数据
+   *  在编译阶段分配内存
+   *  **类内声明，类外初始化**
+*  静态成员函数
+   *  所有对象共享同一个函数
+   *  静态成员函数只能访问静态成员变量
+
+
+
+### this指针
+
+用来
+
+
+
+
+
+
+
+### 继承
+
+继承的语法：`class 子类 : 继承方式  父类`
+
+**继承方式一共有三种：**
+
+* 公共继承
+* 保护继承
+* 私有继承
+
+![image-20250116123123449](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250116123123449.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# c primer plus
+
+形参 函数定义的列表内的参数叫做形参
+
+局部变量 函数内部的变量叫做局部变量，每次函数被调用时到其定义语句生成 块调用结束时候销毁
+
+局部静态变量 在程序第一次经过该定义语句时候生成 直到程序结束才被销毁  即使函数调用结束对其也无影响
+
+
+
+
+
+为什么使用引用  为了避免拷贝
+
+
+
+
+
+
+
+
+
+# QT
+
+- 为什么要使用命名空间：
+
+​	答：可以在另外一个文件中引入，从而轻松的使用函数
+
+
+
+- 标准错误流 ( cerr  ) 和标准日志流 ( clog  )
+
+ 		cerr 用于输出**错误**消息。与  cout 不同，cerr **不是缓冲**的，这意味着它会立即输出。
+ 	
+ 		**clog** 类似于   cerr ，但**它是缓冲**的。它**通常用于记录错误和日志信息**。
+
+
+
+- 内联函数：
+
+  - 其定义直接在调用点的地方展开，**速度较快**	
+
+  - ：适合于性能要求高的代码中频繁使用的函数
+
+  - 缺点：若使用较多可能会造成代码体积肿胀
+
+  - ```c++
+    inline int max(int x, int y) {  //inline指示出内联函数
+     return x > y ? x : y;
+     }
+    ```
+
+- Lambda表达式
+
+它允许你在需要函数的地方内联的定义它，而无需单独命名函数
+
+
+
+**二者区别**  ： Lambda函数核心优势在于他们的匿名性质，和对外部变量的捕获能力，		而内联则主要关注于提高小型函数的性能。
+
+
+
+
+
+
+
+- 普通变量访问成员函数和成员变量时候，使用“ . ”运算符
+- 指针变量访问时候，使用 ->  来访问
+
+关于指针什么时候使用最合适：
+
+1. 动态分配内存（new出来的对象）
+
+2. 创建大型对象或者复杂对象的时候
+
+3. 需要共享一个对象（多个变量指向同一个对象）   比如多个模块函数都要操作同一个对象不希望复制
+
+4. 实现多态（继承＋虚函数时候**必须**要用），
+
+5. ```c++
+   class Animal {
+   public:
+       virtual void speak() { cout << "Animal sound" << endl; }
+   };
+   
+   class Dog : public Animal {
+   public:
+       void speak() override { cout << "汪汪汪" << endl; }
+   };
+   
+   Animal* a = new Dog(); // 父类指针指向子类对象（多态）
+   a->speak();            // 输出：汪汪汪
+   ```
+
+   
+
+6. 在函数中修改外部变量（直接通过指针传回来的地址直接改动）
+
+7. 管理可能为“空”的对象
+
+c++ 11之后，推荐用智能指针代替裸指针  可以自动回收内存
+
+```c++
+#include <memory>
+
+std::shared_ptr<Car> car1 = std::make_shared<Car>();    //shared_ptr: 多人共享一辆车（多个指针指向）
+std::unique_ptr<Car> car2 = std::make_unique<Car>();    //你是这辆车唯一的主人（一个指针独占）
+
+```
+
+
+
+
+
+## 引用
+
+引用：引用是一个别名，是给一个变量起的另外的一个名字，但是**是直达地址的**
+
+引用很容易与指针混淆，它们之间有三个主要的不同：
+
+1.  **不存在空引用**。引用必须连接到一块合法的内存。
+2.  一旦引用被初始化为一个对象，**就不能被指向到另一个对象**。指针可以在任何时候指向到另一个对 象。 
+3. 引用**必须在创建时**被初始化。指针可以在任何时间被初始化。
+
+官方没有明确说明，但是引用确实不是传统意义上的独立变量，它不能“变”嘛 试想变量名称是变量附属在内存位置中的标签，您可以把引用当成是变量附属在内存位置中的第二 个标签。因此，您可以通过原始变量名称或引用来访问变量的内容。
+
+
+
+## 重载
+
+函数重载：在同一个作用域中，可以声明几个功能类似的同名函数
+
+运算符重载：
+
+```c++
+class Point {
+public:
+ int x, y;
+ // 重载 + 运算符
+Point operator+(const Point& other) const {
+ return Point(x + other.x, y + other.y);
+ }
+ };
+```
+
+
+
+## 构造函数
+
+无参构造函数
+
+有参构造函数
+
+拷贝构造函数：用于创建一个新对象，作为现有对象的副本  他在以下几种情况被调用
+
+1. 当一个新对象被创建为另一个同类型的现有对象的副本时候
+2. 当对象作为参数传递给函数时候，并且参数不是引用
+3. 从函数返回对象的时候
+4. 初始化数组或者容器中的元素时候   
+
+```c++
+class MyClass {
+ public:
+ MyClass(const MyClass& other);
+ };
+```
+
+
+
+
+
+
+
+避免不必要的拷贝：，尤其是在处理大型对象或资源密集型对象时
+
+1. 使用引用（包括常量引用来传递对象），**可以避免在函数调用时创建对象的副本**
+2. 使用移动语义
+
+
+
+
+
+拷贝构造函数会一些情况下被隐式调用：
+
+1. . 作为函数参数传递（按值传递）
+2. 从函数返回对象时候（按值返回）
+3. 初始化另外一个对象时候，用这一个初始另外一个
+
+如何禁用拷贝构造函数（尤其是设计那些不应该被复制的类的时候）：使用delete关键字
+
+```c++
+class NonCopyable {
+ public:
+    NonCopyable() = default;  // 使用默认构造函数
+    // 禁用拷贝构造函数
+    NonCopyable(const NonCopyable&) = delete;
+    // 禁用拷贝赋值运算符
+    NonCopyable& operator=(const NonCopyable&) = delete;
+ };
+ int main() {
+     NonCopyable obj1;
+     // NonCopyable obj2 = obj1;  // 编译错误，拷贝构造函数被禁用
+     return 0;
+ }
+```
+
+![image-20250412163820763](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250412163820763.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 记事本项目
+
+弹簧：使得按钮保持位置
+
+加入frame（widget） 使得加入背景色，加入颜色有选项可选
+
+
+
+
+
+## 自定义信号与槽
+
+
+
+QFile打开文件  创建文件 写入文件
+
+QTextStream读写文件  有些优点 
+
+**bug**  ：写入文件时候碰到乱码问题
+
+1. 解决： 解决办法一：写入 UTF-8 带 BOM（推荐）
+
+   添加 BOM，可以让 Windows 记事本正确识别 UTF-8 编码。
+
+**文件选择对话框** QFileDialog     可设置模式 设置过滤器 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 智能家居项目
+
+![image-20250413095717470](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250413095717470.png)
+
+
+
+## 界面开发
+
+放图片，放文本，放gif图的组建就是qlabel
+
+文本输入 line edit  一行文本
+
+
+
+如何添加图片
+
+- 添加图片资源文件   给工程添加资源文件夹
+- 引用这个图片
+
+布局：保证页面不会乱
+
+1. 水平
+2. 垂直
+3. 栅格    使用弹簧
+
+界面切换
+
+1. 创建新的界面   qt设计师界面类
+
+
+
+
+
+## **qt的三驾马车**
+
+1. qt下的串口编程
+2. qt下的网络编程
+3. qt下的操作GPIO
+
+
+
+## qt下串口编程
+
+
+
+接受 框框组件：   PlainTextEdit
+
+属性选择：下拉组件： Combo BOX
+
+发送框  ：line edit
+
+**写代码之前给控件改名字**
+
+
+
+### 打包与部署操作
+
+![image-20250415203526467](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250415203526467.png)
+
+然后创建一个新的文件夹，将exe文件放进去
+
+![image-20250415204040756](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250415204040756.png)
+
+最后一步我们使用windeployqt工具加到我们的
+
+![image-20250415204235029](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250415204235029.png)
+
+
+
+
+
+## 网络编程
+
+TCP篇
+
+需要Qtcpsocket和Qtcpsocket
+
+客户端只需要Qtcpsocket
+
+服务端都需要
+
+### 服务端开发
+
+tcpserver - > listen(QHostAddress::Any，ui->portEdit->text().toUnint )  监听来自所有人的连接，后面是端口号的记录
+
+槽函数中实例化socket
+
+
+
+
+
+# MP3音乐播放器搜索引擎
+
+布置界面   linedit   plaintextedit
+
+groupbox  边框
+
+horizion slider   //拖拉进度条
+
+**bug**：： 在一个资源文件qrc中，一个文件夹下面加了另外一个qrc文件   编译不通过  删除之后还是不行
+
+解决：直接把resource文件删除了，重新加入图标
+
+![image-20250414110702797](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20250414110702797.png)
+
+
+
+resource文件中多了一个  qrc文件 ，就没法过去 了，删除之后没有选他就可以过了
+
+
+
+
+
+
+
+
+
+
+
+# 串口通信
+
+什么是串口通信：串口通信（Serial Communication）是一种**数据按位（bit）顺序一位一位依次传输**的通信方式，广泛用于**嵌入式系统、传感器、模块、计算机与外部设备之间的数据传输**。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# linux下编程：
+
+由于linux下
+
+\Linux 上常用的编译器是 gcc 和 clang。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 高阶语法
+
+## 移动构造函数
+
+```c++
+// 移动构造函数
+LogRecord::LogRecord(LogRecord&& other) noexcept 
+    : level(other.level), message(std::move(other.message)), 
+      timestamp(std::move(other.timestamp)), thread_id(other.thread_id) {
+}
+```
+
+两个基本参数level和thread_ID就是直接复制的，因为复制和移动的成本**相同**但是对于复杂的类型**就是只转移指针**（移动）更方便
+
+noexcept表示函数不会抛出异常，编译器可以进行更激烈的优化
+
+```c++
+message(std::move(other.message))
+```
+
+std::move 的本质：
+std::move 实际上是一个类型转换函数，不是移动操作本身
+它**将左值引用转换为右值引用**
+真正的移动操作由目标类型的**移动构造函数**完成
+
+
+
+
+
+## 左值引用与右值引用
+
+### 左值引用
+
+```c++
+Type& ref = lvalue
+const Type& ref = lvalue
+```
+
+**特点**：
+
+- 绑定到左值（有名字的变量）
+- 可以取地址
+- 生命周期长
+- 可以修改（除非是const引用）
+
+
+
+## 类外声明函数
+
+类外声明函数的情况：
+
+1. 全局工具函数：不属于任何类，提供通用功能
+
+1. 友元函数：需要**访问私有成员****但不是成员函数**
+
+1. 运算符重载：某些运算符必须在类外定义
+
+1. 工厂函数：创建对象的函数
+
+1. 处理函数：处理特定类型对象的函数
+
+声明方式：
+
+- 在类外直接声明和定义
+
+- 在头文件中声明，源文件中定义
+
+- 使用 friend 关键字声明友元函数
+
+- 使用 inline 关键字声明内联函数
+
+
+
+## 为什么需要友元函数
+
+### 1. 1访问控制需求
+
+- 某些外部函数需要访问类的私有成员
+
+- 提供比公共接口更直接、更高效的访问方式
+
+### 1.2. 运算符重载
+
+- 流运算符 << 和 >> 必须在类外定义
+
+- 需要访问私有成员来正确实现运算符功能
+
+### 1.3. 设计模式支持
+
+- 工厂模式、访问者模式等需要友元函数
+
+- 支持更复杂的类间协作
+
+### 1.4. 性能考虑
+
+- 避免通过公共接口的间接访问
+
+- 直接访问私有成员，提高性能
+
+### 1.5. 功能完整性
+
+- 提供完整的类功能接口
+
+- 支持全局函数与类的深度集成
+
+
+
+### 2. 再问：为什么工厂模式和访问者模式需要友元函数
+
+#### 2.1工厂模式定义
+
+工厂模式是一种创建型设计模式，他提供一种创建对象的最佳方式，其**不使用new操作**符操作队形而是**通过工厂方法**来创建对象
+
+#### 2.2工厂模式结构
+
+```c++
+//抽象产品类
+class Logger{
+public:
+	virtual ~Logger() = default;
+    virtual void log(const std::string& message) = 0;
+};
+//具体产品类
+class Filelogger : public Logger{
+private:
+    std::string filename_;
+public:	
+    FileLogger(const std::string& filename) : filename_(filename){}
+    void log(const std::string&) override{
+        std::cout << "文件日志："<< message << std::endl;
+    }
+};
+class ConsoleLogger : public Logger{
+public:
+    void log(const std::string& message) override{
+        std::cout<<"控制台日志" << message <<std::endl;
+    }
+};
+//工厂类
+class LoggerFactory{
+public:
+    static std::unique_ptr<Logger> creatLogger(const std::string& type,const std::string& filename = ""){
+        if(type == "file"){
+            return std::make_unique<FileLogger>(filename);
+        }else if(type == "console"){
+            return std::make_unique<ConsoleLogger>();
+        }
+        return nullptr;
+    }
+};
+	
+```
+
+加入友元函数之后可以访问类的内部变量（私有成员），进行额外配置
+
+### 2.3 工厂模式中的友元函数使用示例
+
+```c++
+class Filelogger : public Logger{
+private:
+    std::string filename_;
+    std::ofstream file_stream_;  //文件输出流类 用于向文件中写入数据
+    
+public:
+    //友元函数声明
+    friend std::unique_ptr<FileLogger> createFileLogger(const std::string& filename);
+    FileLogger(const std::string& filename):filename_(filename){
+        file_stream_.open(filename_);
+    }
+    void log (const std:: string&message)override{
+        file_stream_<<message << std::endl; //使用流操作符写入文件
+    }
+};
+//友元函数定义
+std::unique_ptr<FileLogger> createFileLogger(const std::string& filename){
+    auto logger = std::make_unique<FileLogger>(filename);
+    //可以访问私有成员进行额外配置
+    return logger;
+}
+```
+
+在友元函数中的声明中：std::unique_ptr<FileLogger>  的含义**是返回类型是智能指针指向FileLogger对象**
+
+##### 什么是 std::unique_ptr
+
+```c++
+std::unique_ptr<FileLogger> createFileLogger(const std::string& filename)
+```
+
+引入的智能指针
+
+- 作用：自动管理动态分配的内存
+- 特点：独占所有权，不能拷贝 只能移动
+- 优势：自动释放内存，防止内存泄漏
+
+**使用：**
+
+```c++
+//创建unique_ptr
+auto logger = std::make_unique<FileLogger>(filename);
+//移动语义
+std::unique_ptr<FileLogger> logger2 = std::move(logger);//logger变为空
+//自动释放
+//当logger离开作用域的时候，自动调用析构函数释放内存
+```
+
+
+
+### 3.再问：为什么访问者模式需要使用友元函数
+
+#### 3.1访问者模式的定义：
+
+访问者模式是一种行为型设计模式，它允许你在不改变对象结构的情况下，**定义作用于这些对象的新操作**
+
+#### 3.2访问者模式的结构
+
