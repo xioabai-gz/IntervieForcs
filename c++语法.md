@@ -971,6 +971,16 @@ const Type& ref = lvalue
 - 生命周期长
 - 可以修改（除非是const引用）
 
+当函数的参数声明为常量引用的时候，同时可以接受左值和右值
+
+左值是有着某种存储支持的变量，右值是临时的值
+
+**使用右值引用作为参数的时候，我们不需要担心是否完整，是否被拷贝，我们可以简单的偷它的资源，给到特定的对象或者在其他地方使用它们**
+
+
+
+## 移动语义
+
 
 
 ## 类外声明函数
@@ -1579,5 +1589,24 @@ if (currentLevel == 3) {  // 3 是什么意思？
   // processUser(LogLevel::DEBUG, 123);  // 错误：类型不匹配
   ```
 
-  
+
+## RAII
+
+Resource Acquisition Is Initialization
+
+**资源获取即初始化**
+
+当对象被创建时候（构造函数执行时）就获取资源
+
+当对象被销毁的时候（析构函数执行时）就自动释放资源
+
+### 常见的 RAII 类
+
+| 资源类型     | RAII 类                                          |
+| ------------ | ------------------------------------------------ |
+| 内存         | `std::unique_ptr`, `std::shared_ptr`             |
+| 文件         | `std::ifstream`, `std::ofstream`, `std::fstream` |
+| 互斥锁       | `std::lock_guard`, `std::unique_lock`            |
+| 动态数组     | `std::vector`                                    |
+| 临时状态管理 | `std::scoped_lock`, `std::jthread`（C++20）      |
 
