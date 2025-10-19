@@ -1610,3 +1610,69 @@ Resource Acquisition Is Initialization
 | 动态数组     | `std::vector`                                    |
 | 临时状态管理 | `std::scoped_lock`, `std::jthread`（C++20）      |
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# GRPC
+
+使用protobuffer协议，序列化后的二进制比http更短
+
+与HTTP都是使用TCP传输，但是GRPC封装了HTTP2
+
+**二者区别如下**
+
+![image-20251018103851886](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018103851886.png)
+
+![image-20251018104348743](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018104348743.png)
+
+![image-20251018104524521](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018104524521.png)
+
+GRPC只需要想好如何构造response结构体就好
+
+protoc会帮助生产两个结构体
+
+## 为什么在分布式系统中使用GRPC
+
+![image-20251018105959240](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018105959240.png)
+
+### 分布式系统内存在的痛点
+
+1. 性能低：json是文本格式，占空间大，解析慢
+2. 接口不稳定/缺乏约束：每个服务自己定义接口字段，容易出错
+3. 无原生语言支持：不同语言要手写HTTP客户端，请求/相应容易不一致
+4. 没有流式通信：hTTP/1.1只能一次请求对应一次响应，无法实时推送或双向通信
+
+### GRPC的优势解析：
+
+1. 高性能（二进制传输+HTTP/2）
+
+   1. grpc使用Protocol Buffers（protobuf）编码，比json小10倍以上
+   2. 解析速度快，cpu消耗低
+   3. HTTP/2支持多路复用（一个链接同时跑多个请求）减少延迟
+   4. **同样的带宽，grpc可以传更多数据，减少延迟**
+
+2. 强类型，自动生成代码（IDL驱动）
+
+   1. grpc的**接口通过.proto文件定义**，然后通过proroc一键生成多语言代码
+
+3. 原生支持流式通信
+
+   ![image-20251018112012706](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018112012706.png)
+
+4. 内置认证、超时、负载均衡、拦截器
+
+   ![image-20251018112142091](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018112142091.png)
+
+![image-20251018112852095](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20251018112852095.png)
+
